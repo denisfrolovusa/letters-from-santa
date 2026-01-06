@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Letters from Santa</title>
+  <meta name="description" content="A tiny site of sweet letters from Santa Claus." />
+  <style>
+    :root { --bg:#0b1020; --card:#121a33; --text:#e9eefc; --muted:#aab6e6; --accent:#ffde7a; }
+    body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: radial-gradient(1200px 600px at 20% 0%, #1b2a68 0%, var(--bg) 50%, #070a14 100%);
+      color: var(--text); }
+    header { padding: 48px 20px 18px; text-align:center; }
+    h1 { margin:0; font-size: clamp(28px, 4vw, 44px); letter-spacing: .5px; }
+    p.lede { margin: 10px auto 0; max-width: 720px; color: var(--muted); font-size: 16px; }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 18px 20px 60px; }
+    .controls { display:flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin: 18px 0 22px; }
+    input, select, button { border-radius: 12px; border: 1px solid rgba(255,255,255,.12);
+      background: rgba(18,26,51,.8); color: var(--text); padding: 10px 12px; font-size: 14px; }
+    button { cursor:pointer; border-color: rgba(255,222,122,.25); }
+    button:hover { border-color: rgba(255,222,122,.55); }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+    .card { background: rgba(18,26,51,.82); border: 1px solid rgba(255,255,255,.10);
+      border-radius: 18px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+    .meta { display:flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 12px; }
+    .title { margin: 10px 0 6px; font-size: 18px; color: var(--accent); }
+    .text { margin:0; line-height: 1.55; color: #eaf0ff; }
+    footer { text-align:center; color: var(--muted); font-size: 12px; padding: 22px 12px 40px; }
+    .badge { display:inline-block; padding: 4px 10px; border-radius: 999px;
+      background: rgba(255,222,122,.12); border: 1px solid rgba(255,222,122,.25); color: var(--accent); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="badge">🎅 Letters from Santa</div>
+    <h1>Letters from Santa Claus</h1>
+    <p class="lede">A tiny, cozy corner of the internet where Santa leaves short notes for kids (and kids-at-heart).</p>
+  </header>
+
+  <div class="wrap">
+    <div class="controls">
+      <input id="search" placeholder="Search letters (e.g., 'kind', 'cookie', 'reindeer')" />
+      <select id="filter">
+        <option value="all">All moods</option>
+        <option value="encouraging">Encouraging</option>
+        <option value="silly">Silly</option>
+        <option value="grateful">Grateful</option>
+        <option value="brave">Brave</option>
+      </select>
+      <button id="randomBtn">🎁 Random letter</button>
+    </div>
+
+    <div id="grid" class="grid"></div>
+  </div>
+
+  <footer>
+    Made as a free test site • Hosted on GitHub Pages • © <span id="year"></span>
+  </footer>
+
+<script>
+const letters = [
+  {
+    to: "Leo",
+    mood: "encouraging",
+    date: "Dec 12",
+    title: "A note about brave hearts",
+    text: "Ho ho ho, Leo! I heard you tried something new today. That’s what brave hearts do — they try, even when it’s tricky. Keep being kind and curious. I’m proud of you. — Santa"
+  },
+  {
+    to: "Every helper",
+    mood: "grateful",
+    date: "Dec 18",
+    title: "Thank you for being kind",
+    text: "Dear friend, the elves told me you helped someone without being asked. That’s the kind of magic that makes the world sparkle. Thank you for being you. — Santa"
+  },
+  {
+    to: "Cookie Scientists",
+    mood: "silly",
+    date: "Dec 20",
+    title: "Important cookie research",
+    text: "Attention: cookie scientists. New finding: cookies taste 17% better when shared. Further studies are required (and delicious). — Santa"
+  },
+  {
+    to: "Big Feelings Club",
+    mood: "brave",
+    date: "Dec 22",
+    title: "When feelings are big",
+    text: "Sometimes feelings feel like a snowstorm. Here’s a secret: breathe in slow, breathe out slower. Then tell someone you trust. Storms pass. You are safe. — Santa"
+  },
+  {
+    to: "Reindeer Fans",
+    mood: "silly",
+    date: "Dec 24",
+    title: "Rudolph’s announcement",
+    text: "Rudolph asked me to tell you: snacks are appreciated, but compliments are his favorite. If you ever see him, tell him he’s doing great. — Santa"
+  }
+];
+
+const grid = document.getElementById("grid");
+const search = document.getElementById("search");
+const filter = document.getElementById("filter");
+const randomBtn = document.getElementById("randomBtn");
+
+function render(items) {
+  grid.innerHTML = "";
+  items.forEach(l => {
+    const el = document.createElement("div");
+    el.className = "card";
+    el.innerHTML = `
+      <div class="meta">
+        <div>To: <strong>${l.to}</strong></div>
+        <div>${l.date} • <span class="badge" style="padding:2px 8px; font-size:11px;">${l.mood}</span></div>
+      </div>
+      <div class="title">${l.title}</div>
+      <p class="text">${l.text}</p>
+    `;
+    grid.appendChild(el);
+  });
+}
+
+function applyFilters() {
+  const q = search.value.trim().toLowerCase();
+  const mood = filter.value;
+  const filtered = letters.filter(l => {
+    const matchesMood = mood === "all" || l.mood === mood;
+    const hay = (l.to + " " + l.title + " " + l.text).toLowerCase();
+    const matchesQuery = !q || hay.includes(q);
+    return matchesMood && matchesQuery;
+  });
+  render(filtered);
+}
+
+randomBtn.addEventListener("click", () => {
+  const i = Math.floor(Math.random() * letters.length);
+  render([letters[i]]);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+search.addEventListener("input", applyFilters);
+filter.addEventListener("change", applyFilters);
+
+document.getElementById("year").textContent = new Date().getFullYear();
+render(letters);
+</script>
+</body>
+</html>
